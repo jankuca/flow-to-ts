@@ -1,6 +1,6 @@
 {
-  "name": "@khanacademy/flow-to-ts",
-  "version": "0.5.2",
+  "name": "@avocode/flow-to-ts",
+  "version": "0.5.3",
   "publishConfig": {
     "access": "public"
   },
