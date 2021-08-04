@@ -18,11 +18,15 @@ export const ObjectTypeAnnotation = {
       lastProp.trailingComments = trailingComments;
     }
   },
-  exit(path) {
+  exit(path, state) {
     const { exact, callProperties, properties, indexers } = path.node; // TODO: inexact
 
     if (exact) {
-      console.warn("downgrading exact object type");
+      if (state.options.exactTypes) {
+        console.warn("using custom Exact<…> type; you must provide this type globally");
+      } else {
+        console.warn("downgrading exact object type");
+      }
     }
 
     // TODO: create multiple sets of elements so that we can convert
@@ -105,13 +109,36 @@ export const ObjectTypeAnnotation = {
 
     if (spreads.length > 0 && elements.length > 0) {
       path.replaceWith(
-        t.tsIntersectionType([...spreads, t.tsTypeLiteral(elements)])
+        exact && state.options.exactTypes
+          ? t.tsTypeReference(
+              t.identifier("Exact"),
+              t.tsTypeParameterInstantiation([
+                t.tsIntersectionType([...spreads, t.tsTypeLiteral(elements)])
+              ])
+            )
+          : t.tsIntersectionType([...spreads, t.tsTypeLiteral(elements)])
       );
     } else if (spreads.length > 0) {
-      path.replaceWith(t.tsIntersectionType(spreads));
+      path.replaceWith(
+        exact && state.options.exactTypes
+          ? t.tsTypeReference(
+              t.identifier("Exact"),
+              t.tsTypeParameterInstantiation([
+                t.tsIntersectionType(spreads)
+              ])
+            )
+          : t.tsIntersectionType(spreads)
+      );
     } else {
       const typeLiteral = t.tsTypeLiteral(elements);
-      path.replaceWith(typeLiteral);
+      path.replaceWith(
+        exact && state.options.exactTypes
+          ? t.tsTypeReference(
+              t.identifier("Exact"),
+              t.tsTypeParameterInstantiation([typeLiteral])
+            )
+          : typeLiteral
+      );
     }
   },
 };

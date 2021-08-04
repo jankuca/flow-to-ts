@@ -15,6 +15,10 @@ export const cli = (argv) => {
       "--inline-utility-types",
       "inline utility types when possible, defaults to 'false'"
     )
+    .option(
+      "--exact-types",
+      "use Exact<…> types for exact Flow types, defaults to 'false'"
+    )
     .option("--prettier", "use prettier for formatting")
     .option(
       "--semi",
@@ -59,6 +63,7 @@ export const cli = (argv) => {
 
   const options = {
     inlineUtilityTypes: Boolean(program.inlineUtilityTypes),
+    exactTypes: Boolean(program.exactTypes),
     prettier: program.prettier,
     prettierOptions: {
       semi: Boolean(program.semi),
